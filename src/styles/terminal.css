@@ -34,6 +34,7 @@ body {
     font-family: 'Fira Code', 'Courier New', monospace;
     background: var(--terminal-black); color: var(--phosphor-green);
     min-height: 100vh; overflow-x: hidden; position: relative;
+    -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
 }
 
 body::before {

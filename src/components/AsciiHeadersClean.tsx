@@ -46,7 +46,7 @@ export function AsciiHeader() {
 
       // Measure natural width at a known base font size
       text.style.fontSize = '100px'
-      const naturalWidth = text.scrollWidth
+      const naturalWidth = text.getBoundingClientRect().width
       if (naturalWidth === 0) return
 
       // Scale font size so text fills the container exactly
@@ -79,6 +79,7 @@ export function AsciiHeader() {
           fontFamily: "'Fira Code', monospace",
           lineHeight: '1.05',
           whiteSpace: 'pre',
+          WebkitTextSizeAdjust: '100%',
           color: 'var(--phosphor-green)',
           textShadow: '0 0 10px var(--phosphor-green-glow)',
           display: 'inline-block',
