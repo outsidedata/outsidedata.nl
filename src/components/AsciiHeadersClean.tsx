@@ -1,4 +1,4 @@
-import React from 'react'
+import { useRef, useEffect } from 'react'
 
 //____________________________________________________________________________________________________________________________________________________
 // Split ASCII art for coloring
@@ -26,16 +26,66 @@ ________________________________________________________________________________
 
 `
 
+const lines = OUTSIDE_LINES.split('\n').filter(l => l.length > 0)
+
 export function AsciiHeader() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const textRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const container = containerRef.current
+    const text = textRef.current
+    if (!container || !text) return
+
+    let lastContainerWidth = 0
+
+    const fitText = () => {
+      const containerWidth = container.clientWidth
+      if (containerWidth === lastContainerWidth || containerWidth === 0) return
+      lastContainerWidth = containerWidth
+
+      // Measure natural width at a known base font size
+      text.style.fontSize = '100px'
+      const naturalWidth = text.scrollWidth
+      if (naturalWidth === 0) return
+
+      // Scale font size so text fills the container exactly
+      const fontSize = (containerWidth / naturalWidth) * 100
+      text.style.fontSize = `${fontSize}px`
+    }
+
+    fitText()
+
+    // Re-measure after fonts finish loading (character widths may change)
+    document.fonts.ready.then(() => {
+      lastContainerWidth = 0
+      fitText()
+    })
+
+    const observer = new ResizeObserver(() => {
+      requestAnimationFrame(fitText)
+    })
+    observer.observe(container)
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <>
-      {OUTSIDE_LINES.split('\n').map((outsideLine, i) => (
-        <React.Fragment key={i}>
-          <div style={{fontSize: '13px', lineHeight: '12px'}}>{outsideLine}</div>          
-          {'\n'}
-        </React.Fragment>
-      ))}
-    </>
+    <div ref={containerRef} style={{ overflow: 'hidden', marginBottom: '30px' }}>
+      <div
+        ref={textRef}
+        aria-hidden="true"
+        style={{
+          fontFamily: "'Fira Code', monospace",
+          lineHeight: '1.05',
+          whiteSpace: 'pre',
+          color: 'var(--phosphor-green)',
+          textShadow: '0 0 10px var(--phosphor-green-glow)',
+          display: 'inline-block',
+        }}
+      >
+        {lines.map((line, i) => <div key={i}>{line}</div>)}
+      </div>
+    </div>
   )
 }
-
